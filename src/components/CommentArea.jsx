@@ -1,37 +1,47 @@
 import { Component } from "react";
 import CommentList from "./CommentList";
 import AddComment from "./AddComment";
+import Loading from "./Loading";
+import Error from "./Error";
 
 class CommentArea extends Component {
   state = {
-    reviews: []
+    comments: [],
+    isLoading: false,
+    isError: false,
   };
 
   fetchComments = async () => {
-    const resp = await fetch("https://striveschool-api.herokuapp.com/api/comments/" + this.props.asin, {
-      method: "GET",
-      headers: {
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2E0ZGUxYmNhMDcwNDAwMTU4YmY5NzkiLCJpYXQiOjE3Mzg4NTgwMTEsImV4cCI6MTc0MDA2NzYxMX0.KY1i3aAaFytdpVHLectYt_unBT7ZsLQJtlf6z-iXCXg"
+    if (!this.props.asin) return;
+
+    this.setState({ isLoading: true, isError: false });
+
+    try {
+      let response = await fetch(`https://striveschool-api.herokuapp.com/api/comments/${this.props.asin}`, {
+        headers: {
+          Authorization: "Bearer inserisci-qui-il-tuo-token",
+        },
+      });
+
+      if (response.ok) {
+        let comments = await response.json();
+        this.setState({ comments, isLoading: false, isError: false });
+      } else {
+        throw new Error("Errore nel recupero dei commenti");
       }
-    });
-
-    if (resp.ok) {
-      const reviews = await resp.json();
-      console.log(reviews);
-
-      //   this.setState({reviews: reviews})
-      this.setState({ reviews });
+    } catch (error) {
+      console.log(error);
+      this.setState({ isLoading: false, isError: true });
     }
   };
 
-  componentDidMount() {
-    console.log("componentDidMount()");
-    this.fetchComments();
+  componentDidUpdate(prevProps) {
+    if (prevProps.asin !== this.props.asin && this.props.asin) {
+      this.fetchComments();
+    }
   }
 
   render() {
-    console.log("RENDER COMMENT AREA", this.state.reviews);
     return (
       <div className="text-center">
         {!this.props.asin && <p>Seleziona un libro per vedere i commenti</p>}

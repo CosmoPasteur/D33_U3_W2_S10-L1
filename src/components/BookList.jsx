@@ -5,7 +5,12 @@ import SingleBook from "./SingleBook";
 
 class BookList extends Component {
   state = {
-    searchQuery: ""
+    searchQuery: "",
+    selectedBookAsin: null,
+  };
+
+  setSelectedBook = (asin) => {
+    this.setState({ selectedBookAsin: asin });
   };
 
   render() {

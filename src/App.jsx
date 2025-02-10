@@ -10,8 +10,7 @@ import history from "./data/books/history.json";
 import horror from "./data/books/horror.json";
 import romance from "./data/books/romance.json";
 import scifi from "./data/books/scifi.json";
-import { Button, Col, Container, Row } from "react-bootstrap";
-import CommentArea from "./components/CommentArea";
+import { Button } from "react-bootstrap";
 
 class App extends Component {
   state = {
@@ -41,16 +40,7 @@ class App extends Component {
             Scifi
           </Button>
         </div>
-        <Container className="mt-5 pt-5">
-          <Row>
-            <Col>
-              <BookList books={this.state.books} />
-            </Col>
-            <Col>
-              <CommentArea />
-            </Col>
-          </Row>
-        </Container>
+        <BookList books={this.state.books} />
         <Footer />
       </>
     );
