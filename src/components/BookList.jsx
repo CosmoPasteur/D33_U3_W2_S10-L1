@@ -1,21 +1,19 @@
 import { Component } from "react";
-import { Alert, Container, Form, Row } from "react-bootstrap";
-
+import { Alert, Col, Container, Form, Row } from "react-bootstrap";
+import CommentArea from "./CommentArea";
 import SingleBook from "./SingleBook";
 
 class BookList extends Component {
   state = {
     searchQuery: "",
-    selectedBookAsin: null,
+    selectedBook: null,
   };
 
-  setSelectedBook = (asin) => {
-    this.setState({ selectedBookAsin: asin });
-  };
+  changeBookSelected = (book) => this.setState({ selectedBook: book });
 
   render() {
     return (
-      <Container>
+      <Container className="BookList">
         <Form.Control
           className="mt-4"
           type="text"
@@ -23,12 +21,32 @@ class BookList extends Component {
           value={this.state.searchQuery}
           onChange={(e) => this.setState({ searchQuery: e.target.value })}
         />
-        <Row xs={1} sm={2} md={4} xl={5} xxl={6} className="mt-4">
-          {this.props.books
-            .filter((book) => book.title.toLowerCase().includes(this.state.searchQuery.toLowerCase()))
-            .map((book) => (
-              <SingleBook key={book.asin} book={book} />
-            ))}
+        <Row className="mt-4">
+          <Col md={8}>
+            <Row xs={1} sm={2} md={3} lg={4}>
+              {this.props.books
+                .filter((book) => book.title.toLowerCase().includes(this.state.searchQuery.toLowerCase()))
+                .map((book) => (
+                  <SingleBook
+                    key={book.asin}
+                    book={book}
+                    changeBookSelected={this.changeBookSelected}
+                    selectedBookAsin={this.state.selectedBook ? this.state.selectedBook.asin : ""}
+                  />
+                ))}
+            </Row>
+          </Col>
+          <Col md={4}>
+            {this.state.selectedBook ? (
+              <CommentArea
+                asin={this.state.selectedBook.asin}
+                imgSrc={this.state.selectedBook.img}
+                title={this.state.selectedBook.title}
+              />
+            ) : (
+              <Alert variant="warning">👈Seleziona un libro per vederne le recensioni</Alert>
+            )}
+          </Col>
         </Row>
 
         {this.props.books.length === 0 && (

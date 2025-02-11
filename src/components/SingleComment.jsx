@@ -1,58 +1,36 @@
 import { Component } from "react";
-import CommentList from "./CommentList";
-import AddComment from "./AddComment";
-import Loading from "./Loading";
-import Error from "./Error";
+import { Button, ListGroupItem } from "react-bootstrap";
 
-class CommentArea extends Component {
-  state = {
-    comments: [],
-    isLoading: false,
-    isError: false,
-  };
-
-  fetchComments = async () => {
-    if (!this.props.asin) return;
-
-    this.setState({ isLoading: true, isError: false });
-
-    try {
-      let response = await fetch(`https:striveschool-api.herokuapp.com/api/comments/${this.props.asin}`, {
-        headers: {
-          Authorization:
-            "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2FhMGQwZGJiZTAwNDAwMTU5OWY0MzkiLCJpYXQiOjE3MzkxOTc3MDksImV4cCI6MTc0MDQwNzMwOX0.39x81mE2ZspUlGJJxZlu6FUf_FrXkJwRGXeWi7w58m8",
-        },
-      });
-
-      if (response.ok) {
-        let comments = await response.json();
-        this.setState({ comments, isLoading: false, isError: false });
-      } else {
-        throw new Error("Errore nel recupero dei commenti");
+class SingleComment extends Component {
+  handleDelete = () => {
+    fetch("https://striveschool-api.herokuapp.com/api/comments/" + this.props.review._id, {
+      method: "DELETE",
+      headers: {
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2E0ZGUxYmNhMDcwNDAwMTU4YmY5NzkiLCJpYXQiOjE3Mzg4NTgwMTEsImV4cCI6MTc0MDA2NzYxMX0.KY1i3aAaFytdpVHLectYt_unBT7ZsLQJtlf6z-iXCXg",
+      },
+    }).then((resp) => {
+      if (resp.ok) {
+        this.props.fetchComments();
       }
-    } catch (error) {
-      console.log(error);
-      this.setState({ isLoading: false, isError: true });
-    }
+    });
   };
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.asin !== this.props.asin && this.props.asin) {
-      this.fetchComments();
-    }
-  }
 
   render() {
     return (
-      <div className="text-center">
-        {!this.props.asin && <p>Seleziona un libro per vedere i commenti</p>}
-        {this.state.isLoading && <Loading />}
-        {this.state.isError && <Error />}
-        {this.props.asin && <AddComment asin={this.props.asin} />}
-        {this.props.asin && <CommentList commentsToShow={this.state.comments} />}
-      </div>
+      <ListGroupItem className="d-flex justify-content-between">
+        <span>{this.props.review.comment}</span> <span>{this.props.review.rate}</span>
+        <Button
+          variant="danger"
+          onClick={() => {
+            this.handleDelete();
+          }}
+        >
+          🗑️
+        </Button>
+      </ListGroupItem>
     );
   }
 }
 
-export default CommentArea;
+export default SingleComment;
